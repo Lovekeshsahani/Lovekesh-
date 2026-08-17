@@ -1,27 +1,29 @@
-import pkg from 'pg';
-import dotenv from 'dotenv';
+import pg from 'pg';
+import { config } from './environment.js';
 
-const { Pool } = pkg;
-dotenv.config();
+const { Pool } = pg;
 
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'password',
-  database: process.env.DB_NAME || 'gana_bajao',
+  host: config.DB_HOST,
+  port: config.DB_PORT,
+  database: config.DB_NAME,
+  user: config.DB_USER,
+  password: config.DB_PASSWORD,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });
 
-// Test connection
-pol.on('error', (err) => {
+pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
 });
 
-pol.on('connect', () => {
+pool.on('connect', () => {
   console.log('✅ Database connection established');
+});
+
+pool.on('remove', () => {
+  console.log('❌ Database connection removed');
 });
 
 export default pool;

@@ -1,128 +1,63 @@
 import pool from '../config/database.js';
-import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
 
-export class UserModel {
-  // Create new user
-  static async create(email, username, password, fullName = null) {
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const id = uuidv4();
+export const UserModel = {
+  async create(email, username, hashedPassword, fullName) {
+    const id = uuidv4();
+    const result = await pool.query(
+      `INSERT INTO users (id, email, username, password_hash, full_name, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       RETURNING id, email, username, full_name, is_premium, is_admin, created_at`,
+      [id, email, username, hashedPassword, fullName]
+    );
+    return result.rows[0];
+  },
 
-      const result = await pool.query(
-        `INSERT INTO users (id, email, username, password_hash, full_name, role)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING id, email, username, full_name, role, created_at`,
-        [id, email, username, hashedPassword, fullName, 'user']
-      );
+  async findByEmail(email) {
+    const result = await pool.query(
+      'SELECT * FROM users WHERE email = $1 AND is_deleted = false',
+      [email]
+    );
+    return result.rows[0];
+  },
 
-      return result.rows[0];
-    } catch (err) {
-      console.error('Error creating user:', err);
-      throw err;
-    }
-  }
+  async findByUsername(username) {
+    const result = await pool.query(
+      'SELECT * FROM users WHERE username = $1 AND is_deleted = false',
+      [username]
+    );
+    return result.rows[0];
+  },
 
-  // Find user by email
-  static async findByEmail(email) {
-    try {
-      const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-      return result.rows[0] || null;
-    } catch (err) {
-      console.error('Error finding user by email:', err);
-      throw err;
-    }
-  }
+  async findById(id) {
+    const result = await pool.query(
+      'SELECT id, email, username, full_name, bio, is_premium, is_admin, language_preference, avatar_url, created_at FROM users WHERE id = $1 AND is_deleted = false',
+      [id]
+    );
+    return result.rows[0];
+  },
 
-  // Find user by ID
-  static async findById(id) {
-    try {
-      const result = await pool.query(
-        'SELECT id, email, username, full_name, avatar_url, bio, is_premium, role, language_preference, created_at FROM users WHERE id = $1',
-        [id]
-      );
-      return result.rows[0] || null;
-    } catch (err) {
-      console.error('Error finding user by ID:', err);
-      throw err;
-    }
-  }
+  async update(id, data) {
+    const result = await pool.query(
+      `UPDATE users SET
+       full_name = COALESCE($1, full_name),
+       bio = COALESCE($2, bio),
+       language_preference = COALESCE($3, language_preference),
+       avatar_url = COALESCE($4, avatar_url),
+       updated_at = NOW()
+       WHERE id = $5
+       RETURNING id, email, username, full_name, bio, is_premium, language_preference, avatar_url`,
+      [data.fullName, data.bio, data.languagePreference, data.avatarUrl, id]
+    );
+    return result.rows[0];
+  },
 
-  // Verify password
-  static async verifyPassword(plainPassword, hashedPassword) {
-    return await bcrypt.compare(plainPassword, hashedPassword);
-  }
+  async verifyPassword(user, password) {
+    return bcrypt.compare(password, user.password_hash);
+  },
 
-  // Update user profile
-  static async updateProfile(id, updates) {
-    try {
-      const { fullName, bio, avatarUrl, languagePreference } = updates;
-      const result = await pool.query(
-        `UPDATE users SET full_name = COALESCE($2, full_name),
-                         bio = COALESCE($3, bio),
-                         avatar_url = COALESCE($4, avatar_url),
-                         language_preference = COALESCE($5, language_preference),
-                         updated_at = CURRENT_TIMESTAMP
-         WHERE id = $1
-         RETURNING id, email, username, full_name, avatar_url, bio, language_preference`,
-        [id, fullName, bio, avatarUrl, languagePreference]
-      );
-      return result.rows[0];
-    } catch (err) {
-      console.error('Error updating user profile:', err);
-      throw err;
-    }
-  }
-
-  // Upgrade to premium
-  static async upgradeToPremium(id) {
-    try {
-      const result = await pool.query(
-        'UPDATE users SET is_premium = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING id, is_premium',
-        [id]
-      );
-      return result.rows[0];
-    } catch (err) {
-      console.error('Error upgrading to premium:', err);
-      throw err;
-    }
-  }
-
-  // Check if user is admin
-  static async isAdmin(id) {
-    try {
-      const result = await pool.query('SELECT role FROM users WHERE id = $1', [id]);
-      return result.rows[0]?.role === 'admin';
-    } catch (err) {
-      console.error('Error checking admin status:', err);
-      return false;
-    }
-  }
-
-  // Get all users (admin only)
-  static async getAll(page = 1, limit = 20) {
-    try {
-      const offset = (page - 1) * limit;
-      const result = await pool.query(
-        `SELECT id, email, username, full_name, is_premium, role, created_at FROM users
-         ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
-        [limit, offset]
-      );
-      return result.rows;
-    } catch (err) {
-      console.error('Error fetching users:', err);
-      throw err;
-    }
-  }
-
-  // Delete user
-  static async delete(id) {
-    try {
-      await pool.query('DELETE FROM users WHERE id = $1', [id]);
-      return true;
-    } catch (err) {
-      console.error('Error deleting user:', err);
-      throw err;
-    }
-  }
-}
+  async hashPassword(password) {
+    return bcrypt.hash(password, 10);
+  },
+};
