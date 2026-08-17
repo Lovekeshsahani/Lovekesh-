@@ -1,42 +1,39 @@
 {
-  "name": "gana-bajao",
+  "name": "gana-bajao-backend",
   "version": "1.0.0",
-  "description": "Professional music streaming app with multilingual support",
+  "description": "Gana Bajao - Multi-language Music Streaming Backend API",
   "type": "module",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "server": "node server/index.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
-    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "test": "vitest"
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "music",
+    "streaming",
+    "api",
+    "backend"
+  ],
+  "author": "Lovekesh Sahani",
+  "license": "MIT",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0",
-    "zustand": "^4.4.0",
-    "axios": "^1.6.0",
-    "lucide-react": "^0.298.0",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.0.0",
-    "tailwind-merge": "^2.2.0",
-    "framer-motion": "^10.16.0",
-    "react-query": "^3.39.3",
-    "sharp": "^0.33.0"
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0",
+    "express-rate-limit": "^6.7.0",
+    "dotenv": "^16.0.3",
+    "pg": "^8.10.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "uuid": "^9.0.0",
+    "axios": "^1.4.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.0",
-    "vite": "^5.0.0",
-    "tailwindcss": "^3.3.0",
-    "postcss": "^8.4.31",
-    "autoprefixer": "^10.4.16",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@types/node": "^20.0.0",
-    "concurrently": "^8.2.0",
-    "eslint": "^8.54.0",
-    "prettier": "^3.1.0"
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
