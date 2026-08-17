@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #10b981;
+  --accent: #34d399;
+  --dark-bg: #0f172a;
+  --gray-900: #111827;
+  --gray-800: #1f2937;
+  --gray-700: #374151;
+}
+
+* {
+  @apply transition-colors duration-200;
+}
+
+html,
+body {
+  @apply bg-gray-950 text-white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.primary {
+  @apply text-primary;
+}
+
+.bg-primary {
+  @apply bg-[#10b981];
+}
+
+.text-primary {
+  @apply text-[#10b981];
+}
+
+.bg-accent {
+  @apply bg-[#34d399];
+}
+
+.hover\:bg-accent:hover {
+  @apply bg-[#34d399];
+}
+
+.hover\:text-accent:hover {
+  @apply text-[#34d399];
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
+
+/* Focus Styles */
+input:focus,
+textarea:focus,
+select:focus {
+  @apply ring-2 ring-primary ring-opacity-50 outline-none;
+}
+
+/* Button Animations */
+button {
+  @apply active:scale-95;
+}
+
+/* Card Animations */
+.group {
+  @apply transition-all;
+}
